@@ -1,6 +1,5 @@
 package graphs
 
-
 type Edge struct {
 	V1 *Vertex
 	V2 *Vertex
@@ -10,8 +9,8 @@ type Vertex struct {
 	Id		int
 	Color  	string
 	Parent 	*Vertex
-	Desc      	int //Tempo de Descoberta
-	Fim     	int //Tempo de Finalização
+	Desc    int //Tempo de Descoberta
+	Fim     int //Tempo de Finalização
 	Ret    	*int //Vértice de menor tempo de descoberta dentre os filhos
 }
 
