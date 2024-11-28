@@ -1,8 +1,10 @@
 package graphs
 
-func SplatoonComponentSearch(graph Graph, threadsCount int) []*Vertex {
+import (
+	"trabfinal/unionfind"
+)
 
-	// Union-find 
+func SplatoonComponentSearch(graph Graph, threadsCount int) []*Vertex {
 
 	verticesChannel := make(chan *Vertex)
 	go func() {
@@ -18,6 +20,8 @@ func SplatoonComponentSearch(graph Graph, threadsCount int) []*Vertex {
 
 	isVisited := make(map[*Vertex]bool, graph.N)
 
+	unionFind := unionfind.NewUnionFind(graph.N)
+
 	for i := 0; i < threadsCount; i++ {
 
 		go func(verticesChannel chan *Vertex, canFinish chan bool, verticesConsumed chan int) {
@@ -29,13 +33,9 @@ func SplatoonComponentSearch(graph Graph, threadsCount int) []*Vertex {
 	
 					isVisited[vertex] = true
 	
-					/*
 					for _, neighbor := range graph.AdjancencyList[vertex] {
-	
-						// join (vertex, neighbor)
-	
+						unionFind.Join(vertex.Id, neighbor.Id)
 					}
-					*/
 	
 					vConsumed := <- verticesConsumed
 					
@@ -61,7 +61,12 @@ func SplatoonComponentSearch(graph Graph, threadsCount int) []*Vertex {
 
 	}
 
-	// Get from union-find
-	return make([]*Vertex, 10)
+	representatives := unionFind.Representatives()
+	representativeVertices := make([]*Vertex, len(representatives))
 
+	for i, representative := range representatives {
+		representativeVertices[i] = &graph.Vertices[representative]
+	}
+
+	return representativeVertices
 }
