@@ -17,6 +17,7 @@ type Vertex struct {
 type Graph struct {
 	N 				int
 	M 				int
+	Vertices		[]Vertex
 	AdjancencyList 	map[*Vertex][]*Vertex
 }
 
