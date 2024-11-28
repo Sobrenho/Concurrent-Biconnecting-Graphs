@@ -123,3 +123,15 @@ func (G * Graph) checkIfBiconnectedComponentWithSourceVertexVisit(u *Vertex, pil
 	return num_blocks
 }
 
+
+
+func (G *Graph)BiconnectedComponentsInGraphCheck () ([]*Vertex, []bool){
+	componentesConexas := G.DFS_Sequencial()
+	isBiconnected := make([]bool, len(componentesConexas))
+
+	for i, v := range componentesConexas{
+		isBiconnected[i] = G.CheckIfBiconnectedComponentWithSourceVertex(v)
+	}
+
+	return componentesConexas, isBiconnected
+}
