@@ -4,7 +4,7 @@ import (
 	"trabfinal/unionfind"
 )
 
-func SplatoonComponentSearch(graph Graph, threadsCount int) []*Vertex {
+func (graph *Graph) SplatoonComponentSearch(threadsCount int) []*Vertex {
 
 	verticesChannel := make(chan *Vertex)
 	go func() {
