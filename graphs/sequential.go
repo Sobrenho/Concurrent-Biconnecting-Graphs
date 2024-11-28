@@ -1,10 +1,5 @@
 package graphs
 
-import (
-	"slices"
-)
-
-
 
 // ----- DFS ----------------
 
@@ -88,7 +83,7 @@ func (G *Graph) dfs_Visit(u *Vertex, time *int) []*Vertex{
 
 // ------ Tarjan Componente Biconexa -------------
 
-func (G * Graph) DetectBiconnectedComponents() bool{
+func (G * Graph) CheckIfBiconnectedComponentWithSourceVertex(source *Vertex) bool{
 	tempo := 0
 	edge_stack := make(stack[Edge], G.M)
 
@@ -97,19 +92,13 @@ func (G * Graph) DetectBiconnectedComponents() bool{
 		u.Parent = nil
 	}
 	
-	v := G.AmostrarVert()
-	if v == nil{ //Grafo possui um único vértice
-		return false
-	}
+	numberOfBlocks := G.checkIfBiconnectedComponentWithSourceVertexVisit(source, &edge_stack, &tempo)
 
-	arestas_no_bloco := G.detectBiconnectedComponentsVisit(v, &edge_stack, &tempo)
-
-
-	return arestas_no_bloco == G.M
+	return numberOfBlocks == 1
 }
 
 
-func (G * Graph) detectBiconnectedComponentsVisit(u *Vertex, pilha *stack[Edge], tempo *int) int{
+func (G * Graph) checkIfBiconnectedComponentWithSourceVertexVisit(u *Vertex, pilha *stack[Edge], tempo *int) int{
 	var aresta Edge
 	
 	u.Color = "GRAY"
@@ -117,7 +106,7 @@ func (G * Graph) detectBiconnectedComponentsVisit(u *Vertex, pilha *stack[Edge],
 	u.Desc = *tempo
 	*u.Ret = u.Desc
 	
-	block_size := 0
+	num_blocks := 0
 
 
 	for _, v := range G.AdjacencyList[u] {
@@ -125,16 +114,14 @@ func (G * Graph) detectBiconnectedComponentsVisit(u *Vertex, pilha *stack[Edge],
 			v.Parent = u
 			*pilha = pilha.Push(Edge{u,v})
 
-			block_size = G.detectBiconnectedComponentsVisit(v, pilha, tempo)
+			num_blocks = G.checkIfBiconnectedComponentWithSourceVertexVisit(v, pilha, tempo)
 
 			if *v.Ret >= u.Desc { //Achou articulação 
-				edge_count := 0
 				for {
 					aresta, *pilha = pilha.Pop()
-					edge_count++
-
 					if aresta.V1 == u && aresta.V2 == v {
-						return edge_count
+						num_blocks++
+						break
 					}
 				}
 			}else{
@@ -152,5 +139,6 @@ func (G * Graph) detectBiconnectedComponentsVisit(u *Vertex, pilha *stack[Edge],
 		}
 
 	}
-	return block_size
+	return num_blocks
 }
+
