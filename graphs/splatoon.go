@@ -31,7 +31,7 @@ func (graph *Graph) SplatoonComponentSearch(threadsCount int) []*Vertex {
 	
 					isVisited[vertex] = true
 	
-					for _, neighbor := range graph.AdjancencyList[vertex] {
+					for _, neighbor := range graph.AdjacencyList[vertex] {
 						unionFind.Join(vertex.Id, neighbor.Id)
 					}
 	
