@@ -1,11 +1,10 @@
 package graphs
 
 
-// ----- DFS ----------------
+// ---------- DFS ----------------------------------------
 
-func (G *Graph) DFS_Sequencial() []*Graph{
-	connectedComponents := make([]*Graph, 0, G.N)
-
+func (G *Graph) DFS_Sequencial() []*Vertex{
+	sourcesForComponents := make([]*Vertex, 0, G.N)
 
 
 	for v := range G.AdjacencyList{
@@ -13,67 +12,49 @@ func (G *Graph) DFS_Sequencial() []*Graph{
 		v.Parent = nil
 	}
 
-	//Construir Lista de Adjacencia
-
 
 	time := 0
 	
 	for u := range G.AdjacencyList {
 		
 		if (*u).Color == "WHITE" {
-
-			treeVertices := G.dfs_Visit(u, &time)
-			componentAdjacencyList := make(map[*Vertex][]*Vertex)
-
-			edges := 0 
-
-			for _, v := range treeVertices{
-
-				for _, w := range G.AdjacencyList[v]{
-					if slices.Contains(treeVertices, w){
-						componentAdjacencyList[v] = append(componentAdjacencyList[v], w)
-						edges++
-					}
-				}
-			}
-
-			//Transformar []*Vertex em []Vertex
-			new_graph_vertices := make([]Vertex, 0, len(treeVertices))
-			for _, ptr := range treeVertices{
-				new_graph_vertices = append(new_graph_vertices, *ptr)
-			}
-
-			connectedComponents = append(connectedComponents, &Graph{len(treeVertices), edges/2 , new_graph_vertices, componentAdjacencyList})
-
+			G.dfs_Visit(u, &time)
+			sourcesForComponents = append(sourcesForComponents, u)
 		}
 	}
-	return connectedComponents
+
+	return sourcesForComponents
 }
 
 
-//Função Recursiva DFS 
-//Retorna uma lista com todos os vértices visitados abaixo do vértice u
-func (G *Graph) dfs_Visit(u *Vertex, time *int) []*Vertex{ 
+/*
+Função Recursiva DFS 
+
+- Retorna uma lista com todos os vértices visitados abaixo do vértice u
+
+- Descomentar linhas com sifrão ($) para retornar todos os vértices da componente
+
+*/
+func (G *Graph) dfs_Visit(u *Vertex, time *int) {//$ []*Vertex{
 	*time += 1
 	u.Desc = *time
 	u.Color = "GRAY"
 
-	visitedVertices := make([]*Vertex, 0, G.N)
+	//$visitedVertices := make([]*Vertex, 0, G.N)
 	
 	for i := range G.AdjacencyList[u] {
 		v := G.AdjacencyList[u][i]
 		if v.Color == "WHITE" {
 			v.Parent = u
-
-			visitedVertices = append(visitedVertices, G.dfs_Visit(v, time)...)
-
+			G.dfs_Visit(v, time)
+			//$ visitedVertices = append(visitedVertices, G.dfs_Visit(v, time)...)
 		}
 	}
 		u.Color = "BLACK"
 		*time += 1
 		u.Fim = *time
 
-		return append(visitedVertices, u)
+		//$ return append(visitedVertices, u)
 }
 
 // -----------------------------------------
