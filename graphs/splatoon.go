@@ -7,12 +7,10 @@ import (
 func (graph *Graph) SplatoonComponentSearch(threadsCount int) []*Vertex {
 
 	verticesChannel := make(chan *Vertex)
-	go func() {
-		for i := 0; i < graph.N; i++ {
-			verticesChannel <- &graph.Vertices[i]
-		}
-	}()
-
+	for i := 0; i < graph.N; i++ {
+		verticesChannel <- &graph.Vertices[i]
+	}
+	
 	canFinish := make(chan bool)
 
 	verticesConsumed := make(chan int)
