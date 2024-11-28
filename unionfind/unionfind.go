@@ -15,25 +15,25 @@ func keysOf[K comparable, T any](m map[K]T) []K {
 }
 
 type UnionFind struct {
-	size             uint
-	parent           []uint
-	representedCount []uint
+	size             int
+	parent           []int
+	representedCount []int
 	vertexLocks      []sync.Mutex
-	representatives  map[uint]bool
+	representatives  map[int]bool
 	lock             sync.Mutex
 }
 
-func NewUnionFind(size uint) *UnionFind {
+func NewUnionFind(size int) *UnionFind {
 
 	unionFind := new(UnionFind)
 
 	unionFind.size             = size
-	unionFind.parent           = make([]uint, size)
-	unionFind.representedCount = make([]uint, size) 
+	unionFind.parent           = make([]int, size)
+	unionFind.representedCount = make([]int, size) 
 	unionFind.vertexLocks      = make([]sync.Mutex, size)
-	unionFind.representatives  = make(map[uint]bool, size)
+	unionFind.representatives  = make(map[int]bool, size)
 
-	for i := uint(0); i < size; i++ {
+	for i := int(0); i < size; i++ {
 		unionFind.parent[i] = i
 		unionFind.representedCount[i] = 1
 		unionFind.representatives[i] = true
@@ -42,7 +42,7 @@ func NewUnionFind(size uint) *UnionFind {
 	return unionFind
 }
 
-func (unionFind *UnionFind) Find(vertex uint) uint {
+func (unionFind *UnionFind) Find(vertex int) int {
 
 	unionFind.vertexLocks[vertex].Lock()
 	defer unionFind.vertexLocks[vertex].Unlock()
@@ -56,7 +56,7 @@ func (unionFind *UnionFind) Find(vertex uint) uint {
 	return unionFind.parent[vertex]
 }
 
-func (unionFind *UnionFind) Join(vertexA uint, vertexB uint) {
+func (unionFind *UnionFind) Join(vertexA int, vertexB int) {
 
 	representativeA := unionFind.Find(vertexA)
 	representativeB := unionFind.Find(vertexB)
@@ -84,12 +84,12 @@ func (unionFind *UnionFind) Join(vertexA uint, vertexB uint) {
 	unionFind.vertexLocks[representativeB].Unlock()
 }
 
-func (unionFind *UnionFind) Representatives() []uint {
+func (unionFind *UnionFind) Representatives() []int {
 	unionFind.lock.Lock()
 	defer unionFind.lock.Unlock()
 	return keysOf(unionFind.representatives)
 }
 
-func (unionFind *UnionFind) Size() uint {
+func (unionFind *UnionFind) Size() int {
 	return unionFind.size
 }
