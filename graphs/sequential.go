@@ -39,17 +39,19 @@ func (G * Graph) DetectBiconnectedComponents() bool{
 	tempo := 0
 	edge_stack := make(stack[Edge], G.M)
 
-	for u := range G.AdjancencyList {
+	for u := range G.AdjacencyList {
 		u.Color = "WHITE"
 		u.Parent = nil
 	}
 	
 	v := G.AmostrarVert()
-	fmt.Println("Vértice Inicial:", v.Id)
+	if v == nil{ //Grafo possui um único vértice
+		return false
+	}
+
 	arestas_no_bloco := G.detectBiconnectedComponentsVisit(v, &edge_stack, &tempo)
 
 
-	//Checagem Incorreta
 	return arestas_no_bloco == G.M
 }
 
@@ -65,8 +67,7 @@ func (G * Graph) detectBiconnectedComponentsVisit(u *Vertex, pilha *stack[Edge],
 	block_size := 0
 
 
-	for _, v := range G.AdjancencyList[u] {
-		fmt.Printf("Olhamos aresta (%d, %d)\n", u.Id, v.Id)
+	for _, v := range G.AdjacencyList[u] {
 		if v.Color == "WHITE"{
 			v.Parent = u
 			*pilha = pilha.Push(Edge{u,v})
@@ -74,24 +75,17 @@ func (G * Graph) detectBiconnectedComponentsVisit(u *Vertex, pilha *stack[Edge],
 			block_size = G.detectBiconnectedComponentsVisit(v, pilha, tempo)
 
 			if *v.Ret >= u.Desc { //Achou articulação 
-				
-				fmt.Println("Articulação", u.Id, ": Vertice", v.Id, "tem retorno", *v.Ret, "e o tempo de descoberta de", u.Id, "é", u.Desc)
 				edge_count := 0
 				for {
 					aresta, *pilha = pilha.Pop()
 					edge_count++
 
 					if aresta.V1 == u && aresta.V2 == v {
-						fmt.Println("Contador de Arestas para articulação", u.Id,":", edge_count)
-
 						return edge_count
 					}
 				}
 			}else{
-
-				fmt.Printf("Valor de Retorno de %d era %d ", u.Id, *u.Ret)
 				*u.Ret = min(*u.Ret, *v.Ret)
-				fmt.Printf("e agora é %d\n", *u.Ret)
 			}
 
 		}else{
@@ -100,12 +94,7 @@ func (G * Graph) detectBiconnectedComponentsVisit(u *Vertex, pilha *stack[Edge],
 					*pilha = pilha.Push(Edge{u,v})
 				}
 
-				fmt.Printf("Valor de Retorno de %d era %d ", u.Id, *u.Ret)
 				*u.Ret = min(*u.Ret, v.Desc)
-				fmt.Printf("e agora é %d\n", *u.Ret)
-	
-			}else{
-				fmt.Printf("%d é pai de %d\n", v.Id, u.Id)
 			}
 		}
 
