@@ -59,6 +59,8 @@ func (graph *Graph) SplatoonComponentSearch(threadsCount int) []*Vertex {
 
 	}
 
+	<- canFinish
+
 	representatives := unionFind.Representatives()
 	representativeVertices := make([]*Vertex, len(representatives))
 
