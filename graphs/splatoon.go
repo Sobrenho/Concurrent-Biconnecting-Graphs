@@ -4,6 +4,62 @@ import (
 	"trabfinal/unionfind"
 )
 
+func (graph *GraphX) Splatoon(threadsCount int) []int {
+
+	verticesChannel := make(chan int, graph.VerticesCount())
+	for u := 0; u < graph.VerticesCount(); u++ {
+		verticesChannel <- u
+	}
+	
+	canFinish := make(chan bool)
+
+	verticesConsumed := make(chan int, 1)
+	verticesConsumed <- 0
+
+	isVisited := make([]bool, graph.VerticesCount())
+	unionFind := unionfind.NewUnionFind(graph.VerticesCount())
+
+	for i := 0; i < threadsCount; i++ {
+
+		go func() {
+
+			for {
+				select {
+	
+				case vertex := <- verticesChannel:
+	
+					isVisited[vertex] = true
+	
+					for _, neighbor := range graph.Adjacents(vertex) {
+						unionFind.Join(vertex, neighbor)
+					}
+	
+					vConsumed := <- verticesConsumed
+					
+					vConsumed++
+	
+					verticesConsumed <- vConsumed
+	
+					if vConsumed == graph.VerticesCount() {
+						canFinish <- true
+						return
+					}
+	
+				case <- canFinish:
+	
+					canFinish <- true
+					return
+				
+				}
+			}
+		}()
+
+	}
+
+	<- canFinish
+	return unionFind.Representatives()
+}
+
 func (graph *Graph) SplatoonComponentSearch(threadsCount int) []*Vertex {
 
 	verticesChannel := make(chan *Vertex, graph.N)
