@@ -21,7 +21,7 @@ func (graph *GraphX) Splatoon(threadsCount int) []int {
 
 	for i := 0; i < threadsCount; i++ {
 
-		go func() {
+		go func(verticesChannel chan int, canFinish chan bool, verticesConsumed chan int) {
 
 			for {
 				select {
@@ -51,8 +51,10 @@ func (graph *GraphX) Splatoon(threadsCount int) []int {
 					return
 				
 				}
+	
 			}
-		}()
+	
+		}(verticesChannel, canFinish, verticesConsumed)
 
 	}
 
