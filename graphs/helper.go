@@ -1,7 +1,7 @@
 package graphs
 
 
-type stack[T Vertex | Edge] []T
+type stack[T any] []T
 
 func (s stack[T]) Push(item T) stack[T] {
 	return append(s, item)
