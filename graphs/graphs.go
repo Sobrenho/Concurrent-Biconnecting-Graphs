@@ -86,6 +86,8 @@ func TesteBiconnect() (*Graph){
 	for i := range G.N{
 		Vertices = append(Vertices, Vertex{i, "WHITE", nil,0,0, new(int)})
 	}
+
+	G.Vertices = Vertices
 	
 
 	//Criação das arestas
