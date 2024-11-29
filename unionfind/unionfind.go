@@ -18,7 +18,6 @@ type UnionFind struct {
 	size             int
 	parent           []int
 	representedCount []int
-	vertexLocks      []sync.Mutex
 	representatives  map[int]bool
 	lock             sync.Mutex
 }
@@ -29,8 +28,7 @@ func NewUnionFind(size int) *UnionFind {
 
 	unionFind.size             = size
 	unionFind.parent           = make([]int, size)
-	unionFind.representedCount = make([]int, size) 
-	unionFind.vertexLocks      = make([]sync.Mutex, size)
+	unionFind.representedCount = make([]int, size)
 	unionFind.representatives  = make(map[int]bool, size)
 
 	for i := int(0); i < size; i++ {
@@ -42,30 +40,31 @@ func NewUnionFind(size int) *UnionFind {
 	return unionFind
 }
 
-func (unionFind *UnionFind) Find(vertex int) int {
-
-	unionFind.vertexLocks[vertex].Lock()
-	defer unionFind.vertexLocks[vertex].Unlock()
+func (unionFind *UnionFind) findUnblocking(vertex int) int {
 
 	if unionFind.parent[vertex] == vertex {
 		return vertex
 	}
 
-	unionFind.parent[vertex] = unionFind.Find(unionFind.parent[vertex])
+	unionFind.parent[vertex] = unionFind.findUnblocking(unionFind.parent[vertex])
 
 	return unionFind.parent[vertex]
 }
 
+func (unionFind *UnionFind) Find(vertex int) int {
+	unionFind.lock.Lock()
+	defer unionFind.lock.Unlock()
+	return unionFind.findUnblocking(vertex);
+}
+
 func (unionFind *UnionFind) Join(vertexA int, vertexB int) {
 
-	representativeA := unionFind.Find(vertexA)
-	representativeB := unionFind.Find(vertexB)
+	unionFind.lock.Lock()
+
+	representativeA := unionFind.findUnblocking(vertexA)
+	representativeB := unionFind.findUnblocking(vertexB)
 
 	if representativeA != representativeB {
-
-		unionFind.vertexLocks[representativeA].Lock()
-		unionFind.vertexLocks[representativeB].Lock()
-		unionFind.lock.Lock()
 
 		if unionFind.representedCount[representativeA] >= unionFind.representedCount[representativeB] {
 
@@ -80,12 +79,9 @@ func (unionFind *UnionFind) Join(vertexA int, vertexB int) {
 			delete(unionFind.representatives, representativeA)
 
 		}
-
-		unionFind.lock.Unlock()
-		unionFind.vertexLocks[representativeA].Unlock()
-		unionFind.vertexLocks[representativeB].Unlock()
-
 	}
+
+	unionFind.lock.Unlock()
 }
 
 func (unionFind *UnionFind) Representatives() []int {
