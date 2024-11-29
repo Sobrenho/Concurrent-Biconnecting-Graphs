@@ -39,6 +39,12 @@ func compareSlices(a []int, b []int) int {
 
 func sortSliceOfSlices(slice [][]int) {
 	
+	for i := range slice {
+		sort.Slice(slice[i], func(j int, k int) bool {
+			return slice[i][j] < slice[i][k];
+		})
+	}
+
 	sort.Slice(slice, func (i int, j int) bool {
 		return compareSlices(slice[i], slice[j]) < 0
 	})
