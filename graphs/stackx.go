@@ -19,7 +19,7 @@ func (stack *StackX[T]) Size() int {
 }
 
 func (stack *StackX[T]) Pop() T {
-	element := stack.array[stack.Size()]
+	element := stack.array[stack.Size()-1]
 	stack.array = stack.array[:stack.Size() - 1]
 	return element
 }
