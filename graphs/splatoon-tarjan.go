@@ -15,13 +15,20 @@ func (graph *GraphX) SplatoonTarjan(threadsCount int) ([]int, []int) {
 	biconnectedComponents := make(chan []int, 1)
 	biconnectedComponents <- make([]int, 0, len(components))
 
-	canFinish := make(chan bool)
+	canFinish := make(chan bool, 1)
+
+	threadsFinished := make(chan int, 1)
+	threadsFinished <- 0
+
+	canReturn := make(chan bool)
 
 	for i := 0; i < threadsCount; i++ {
 
 		go func() {
 
-			for {
+			mustContinue := true
+
+			for mustContinue {
 
 				select {
 
@@ -37,22 +44,29 @@ func (graph *GraphX) SplatoonTarjan(threadsCount int) ([]int, []int) {
 					componentsConsumed <- cConsumed
 
 					if cConsumed == len(components) {
-						canFinish <- true
-						return
+						mustContinue = false
 					}
 				
 				case <- canFinish:
-
-					canFinish <- true
-					return
-
+					mustContinue = false
 				}
+				
+			}
+
+			tFinished := <- threadsFinished
+			tFinished++
+			threadsFinished <- tFinished
+
+			canFinish <- true
+
+			if tFinished == threadsCount {
+				canReturn <- true
 			}
 		}()
 
 	}
 
-	<- canFinish
+	<- canReturn
 
 	return components, <- biconnectedComponents
 }

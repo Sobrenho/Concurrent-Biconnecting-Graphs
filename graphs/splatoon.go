@@ -11,7 +11,7 @@ func (graph *GraphX) Splatoon(threadsCount int) []int {
 		verticesChannel <- u
 	}
 	
-	canFinish := make(chan bool)
+	canFinish := make(chan bool, 1)
 
 	verticesConsumed := make(chan int, 1)
 	verticesConsumed <- 0
@@ -19,11 +19,18 @@ func (graph *GraphX) Splatoon(threadsCount int) []int {
 	isVisited := make([]bool, graph.VerticesCount())
 	unionFind := unionfind.NewUnionFind(graph.VerticesCount())
 
+	threadsFinished := make(chan int, 1)
+	threadsFinished <- 0
+
+	canReturn := make(chan bool)
+
 	for i := 0; i < threadsCount; i++ {
 
-		go func(verticesChannel chan int, canFinish chan bool, verticesConsumed chan int) {
+		go func() {
 
-			for {
+			mustContinue := true
+			
+			for mustContinue {
 				select {
 	
 				case vertex := <- verticesChannel:
@@ -35,30 +42,34 @@ func (graph *GraphX) Splatoon(threadsCount int) []int {
 					}
 	
 					vConsumed := <- verticesConsumed
-					
 					vConsumed++
-	
 					verticesConsumed <- vConsumed
 	
 					if vConsumed == graph.VerticesCount() {
-						canFinish <- true
-						return
+						mustContinue = false
 					}
 	
 				case <- canFinish:
-	
-					canFinish <- true
-					return
-				
+					mustContinue = false
 				}
 	
 			}
+
+			tFinished := <- threadsFinished
+			tFinished++
+			threadsFinished <- tFinished
+
+			canFinish <- true
+
+			if tFinished == threadsCount {
+				canReturn <- true
+			}
 	
-		}(verticesChannel, canFinish, verticesConsumed)
+		}()
 
 	}
 
-	<- canFinish
+	<- canReturn
 	return unionFind.Representatives()
 }
 
