@@ -11,28 +11,28 @@ type edge struct {
 	v int
 }
 
-func (graph *GraphX) tarjanDFS(desc []int) []int {
+func (graph *GraphX) tarjanDFS() []int {
 
-		color  := make([]int, graph.VerticesCount())
-		parent := make([]int, graph.VerticesCount())
+	color  := make([]int, graph.VerticesCount())
+	parent := make([]int, graph.VerticesCount())
+	desc   := make([]int, graph.VerticesCount())
 
-		for u := 0; u < graph.VerticesCount(); u++ {
-			color[u] = white
-			parent[u] = -1
+	for u := 0; u < graph.VerticesCount(); u++ {
+		color[u] = white
+		parent[u] = -1
+	}
+
+	time := 0
+	components := make([]int, 0)
+
+	for u := 0; u < graph.VerticesCount(); u++ {
+		if color[u] == white {
+			graph.tarjanDFSVisit(u, color, parent, desc, &time)
+			components = append(components, u)
 		}
+	}
 
-		time := 0
-		componentsRepresentatives := make([]int, 0)
-
-		for u := 0; u < graph.VerticesCount(); u++ {
-			if color[u] == white {
-				graph.tarjanDFSVisit(u, color, parent, desc, &time)
-				componentsRepresentatives =
-					append(componentsRepresentatives, u)
-			}
-		}
-
-		return componentsRepresentatives
+	return components
 }
 
 func (graph *GraphX) tarjanDFSVisit(u int, color []int, parent []int,
@@ -53,11 +53,11 @@ func (graph *GraphX) tarjanDFSVisit(u int, color []int, parent []int,
 		*time += 1
 }
 
-func (graph *GraphX) isInBiconnectedComponent(vertex int,
-	desc []int) bool {
+func (graph *GraphX) Tarjan(vertex int) bool {
 
 	color  := make([]int, graph.VerticesCount())
 	parent := make([]int, graph.VerticesCount())
+	desc   := make([]int, graph.VerticesCount())
 	ret    := make([]int, graph.VerticesCount())
 
 	for u := 0; u < graph.VerticesCount(); u++ {
@@ -68,14 +68,12 @@ func (graph *GraphX) isInBiconnectedComponent(vertex int,
 	edgeStack := NewStack[edge]()
 	time := 0
 
-	return graph.isInBicconectedComponentVisit(vertex, color, parent,
-		desc, ret, edgeStack, &time) == 1
+	return graph.tarjanVisit(vertex, color, parent, desc, ret, edgeStack, &time) == 1
 
 }
 
-func (graph *GraphX) isInBicconectedComponentVisit(u int, color []int,
-	parent []int, desc []int, ret []int, edgeStack *StackX[edge],
-	time *int) int {
+func (graph *GraphX) tarjanVisit(u int, color []int, parent []int, desc []int, ret []int,
+	edgeStack *StackX[edge], time *int) int {
 
 		color[u] = gray
 		*time += 1
@@ -91,8 +89,7 @@ func (graph *GraphX) isInBicconectedComponentVisit(u int, color []int,
 				parent[v] = u
 				edgeStack.Push(edge{u ,v})
 
-				blocksCount = graph.isInBicconectedComponentVisit(v,
-					color, parent, desc, ret, edgeStack, time)
+				blocksCount = graph.tarjanVisit(v, color, parent, desc, ret, edgeStack, time)
 					
 				if ret[v] >= desc[u] {
 
@@ -120,22 +117,17 @@ func (graph *GraphX) isInBicconectedComponentVisit(u int, color []int,
 		return blocksCount
 }
 
-func (graph *GraphX) Tarjan() ([]int, []int) {
+func (graph *GraphX) DFSTarjan() ([]int, []int) {
 
-	desc := make([]int, graph.VerticesCount())
+	components := graph.tarjanDFS()
 
-	componentsRepresentatives := graph.tarjanDFS(desc)
-
-	biconnectedComponentsRepresentatives := make([]int, 0,
-		len(componentsRepresentatives))
+	biconnectedComponents := make([]int, 0, len(components))
 	
-	for _, u := range componentsRepresentatives {
-		if graph.isInBiconnectedComponent(u, desc) {
-			componentsRepresentatives =
-				append(componentsRepresentatives, u)
+	for _, u := range components {
+		if graph.Tarjan(u) {
+			components = append(components, u)
 		}
 	}
 
-	return componentsRepresentatives,
-		biconnectedComponentsRepresentatives
+	return components, biconnectedComponents
 }
