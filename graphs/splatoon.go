@@ -6,14 +6,14 @@ import (
 
 func (graph *Graph) SplatoonComponentSearch(threadsCount int) []*Vertex {
 
-	verticesChannel := make(chan *Vertex)
+	verticesChannel := make(chan *Vertex, graph.N)
 	for i := 0; i < graph.N; i++ {
 		verticesChannel <- &graph.Vertices[i]
 	}
 	
 	canFinish := make(chan bool)
 
-	verticesConsumed := make(chan int)
+	verticesConsumed := make(chan int, 1)
 	verticesConsumed <- 0
 
 	isVisited := make(map[*Vertex]bool, graph.N)
