@@ -1,6 +1,7 @@
 package graphs
 
 import (
+	"sync"
 	"trabfinal/unionfind"
 )
 
@@ -13,14 +14,15 @@ func (graph *GraphX) Splatoon(threadsCount int) []int {
 	
 	canFinish := make(chan bool, 1)
 
-	verticesConsumed := make(chan int, 1)
-	verticesConsumed <- 0
+	verticesConsumed := 0
+	var verticesConsumedLock sync.Mutex
 
 	isVisited := make([]bool, graph.VerticesCount())
+
 	unionFind := unionfind.NewUnionFind(graph.VerticesCount())
 
-	threadsFinished := make(chan int, 1)
-	threadsFinished <- 0
+	threadsFinished := 0
+	var threadsFinishedLock sync.Mutex
 
 	canReturn := make(chan bool)
 
@@ -41,13 +43,12 @@ func (graph *GraphX) Splatoon(threadsCount int) []int {
 						unionFind.Join(vertex, neighbor)
 					}
 	
-					vConsumed := <- verticesConsumed
-					vConsumed++
-					verticesConsumed <- vConsumed
-	
-					if vConsumed == graph.VerticesCount() {
+					verticesConsumedLock.Lock()
+					verticesConsumed++
+					if verticesConsumed == graph.VerticesCount() {
 						mustContinue = false
 					}
+					verticesConsumedLock.Unlock()
 	
 				case <- canFinish:
 					mustContinue = false
@@ -55,15 +56,13 @@ func (graph *GraphX) Splatoon(threadsCount int) []int {
 	
 			}
 
-			tFinished := <- threadsFinished
-			tFinished++
-			threadsFinished <- tFinished
-
-			canFinish <- true
-
-			if tFinished == threadsCount {
+			threadsFinishedLock.Lock()
+			threadsFinished++
+			if threadsFinished == threadsCount {
 				canReturn <- true
 			}
+			canFinish <- true
+			threadsFinishedLock.Unlock()
 	
 		}()
 
