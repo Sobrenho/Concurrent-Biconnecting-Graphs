@@ -91,7 +91,7 @@ func (graph *GraphX) tarjanVisit(u int, color []int, parent []int, desc []int, r
 					}
 				}
 			} else {
-				ret[u] = min (ret[u], ret[v])
+				ret[u] = min(ret[u], ret[v])
 			}
 		} else if v != parent[u] {
 			if desc[v] < desc[u] {
