@@ -2,10 +2,12 @@ package scripts
 
 import (
 	"encoding/binary"
+	"fmt"
 	"log"
 	"os"
 	"sort"
 	"strconv"
+	"time"
 	"trabfinal/graphs"
 )
 
@@ -136,7 +138,11 @@ func RunDFSTarjan(args []string) {
 		return
 	}
 
+	beforeAlgorithm := time.Now().UnixMilli()
 	_, components := graph.DFSTarjan()
+	afterAlgorithm := time.Now().UnixMilli()
+
+	fmt.Println(afterAlgorithm - beforeAlgorithm)
 
 	componentsExpanded := make([][]int, len(components))
 	for i, component := range components {
@@ -175,7 +181,11 @@ func RunSplatoonTarjan(args []string) {
 		return
 	}
 
+	beforeAlgorithm := time.Now().UnixMilli()
 	_, components := graph.SplatoonTarjan(threadsCount)
+	afterAlgorithm := time.Now().UnixMilli()
+
+	fmt.Println(afterAlgorithm - beforeAlgorithm)
 
 	componentsExpanded := make([][]int, len(components))
 	for i, component := range components {
