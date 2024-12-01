@@ -7,67 +7,45 @@ import (
 
 func (graph *GraphX) Splatoon(threadsCount int) []int {
 
-	verticesChannel := make(chan int, graph.VerticesCount())
-	for u := 0; u < graph.VerticesCount(); u++ {
-		verticesChannel <- u
-	}
-	
-	canFinish := make(chan bool, 1)
-
-	verticesConsumed := 0
-	var verticesConsumedLock sync.Mutex
+	nextVertex := 0
+	var nextVertexLock sync.Mutex
 
 	isVisited := make([]bool, graph.VerticesCount())
 
 	unionFind := unionfind.NewUnionFind(graph.VerticesCount())
 
-	threadsFinished := 0
-	var threadsFinishedLock sync.Mutex
-
-	canReturn := make(chan bool)
+	returnedChannel := make(chan bool, threadsCount)
 
 	for i := 0; i < threadsCount; i++ {
 
 		go func() {
 
-			mustContinue := true
-			
-			for mustContinue {
-				select {
-	
-				case vertex := <- verticesChannel:
-	
-					isVisited[vertex] = true
-	
-					for _, neighbor := range graph.Adjacents(vertex) {
-						unionFind.Join(vertex, neighbor)
-					}
-	
-					verticesConsumedLock.Lock()
-					verticesConsumed++
-					if verticesConsumed == graph.VerticesCount() {
-						mustContinue = false
-					}
-					verticesConsumedLock.Unlock()
-	
-				case <- canFinish:
-					mustContinue = false
+			for {
+
+				nextVertexLock.Lock()
+				if nextVertex == graph.VerticesCount() {
+					nextVertexLock.Unlock()
+					break
 				}
+				vertex := nextVertex
+				nextVertex++
+				nextVertexLock.Unlock()
+
+				isVisited[vertex] = true
 	
+				for _, neighbor := range graph.Adjacents(vertex) {
+					unionFind.Join(vertex, neighbor)
+				}
 			}
 
-			threadsFinishedLock.Lock()
-			threadsFinished++
-			if threadsFinished == threadsCount {
-				canReturn <- true
-			}
-			canFinish <- true
-			threadsFinishedLock.Unlock()
+			returnedChannel <- true
 	
 		}()
 
 	}
 
-	<- canReturn
+	for i := 0; i < threadsCount; i++ {
+		<- returnedChannel
+	}
 	return unionFind.Representatives()
 }
