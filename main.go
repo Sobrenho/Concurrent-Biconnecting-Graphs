@@ -1,13 +1,20 @@
 package main
 
 import (
-	"trabfinal/tests"
-
+	"fmt"
+	"os"
+	"trabfinal/scripts"
 )
-	
 
 func main(){
-	
-	tests.CompareImplementations(10)
 
+	switch os.Args[1] {
+	
+	case "make-random-graph":
+		scripts.MakeRandomGraphFile(os.Args[2:])
+	
+	default:
+		fmt.Printf("Unknown command %s.", os.Args[1])
+
+	}
 }
