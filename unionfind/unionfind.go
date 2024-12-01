@@ -31,7 +31,7 @@ func NewUnionFind(size int) *UnionFind {
 	unionFind.representedCount = make([]int, size)
 	unionFind.representatives  = make(map[int]bool, size)
 
-	for i := int(0); i < size; i++ {
+	for i := 0; i < size; i++ {
 		unionFind.parent[i] = i
 		unionFind.representedCount[i] = 1
 		unionFind.representatives[i] = true
