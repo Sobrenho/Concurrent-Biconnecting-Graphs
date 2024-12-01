@@ -20,6 +20,9 @@ func main(){
 	case "run-dfs-tarjan":
 		scripts.RunDFSTarjan(passedArgs)
 	
+	case "run-splatoon-tarjan":
+		scripts.RunSplatoonTarjan(passedArgs)
+	
 	default:
 		fmt.Printf("Unknown command %s.", command)
 
