@@ -8,13 +8,20 @@ import (
 
 func main(){
 
-	switch os.Args[1] {
+	command := os.Args[1]
+	passedArgs := os.Args[2:]
+
+
+	switch command {
 	
 	case "make-random-graph":
-		scripts.MakeRandomGraphFile(os.Args[2:])
+		scripts.MakeRandomGraphFile(passedArgs)
+	
+	case "run-dfs-tarjan":
+		scripts.RunDFSTarjan(passedArgs)
 	
 	default:
-		fmt.Printf("Unknown command %s.", os.Args[1])
+		fmt.Printf("Unknown command %s.", command)
 
 	}
 }
