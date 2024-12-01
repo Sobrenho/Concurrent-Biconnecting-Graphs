@@ -40,3 +40,32 @@ func (graph *GraphX) VerticesCount() int {
 func (graph *GraphX) EdgesCount() int {
 	return graph.edgesCount
 }
+
+
+
+// Gera seguinte grafo: https://i.imgur.com/8s24EVp.png
+func TestGraph() *GraphX{
+	G := NewGraphX(18)
+
+	G.AddEdge(0,1)
+	G.AddEdge(0,2)
+	G.AddEdge(1,3)
+	G.AddEdge(2,3)
+	G.AddEdge(2,4)
+	G.AddEdge(3,4)
+	G.AddEdge(4,5)
+	G.AddEdge(6,7)
+	G.AddEdge(6,8)
+	G.AddEdge(7,8)
+	G.AddEdge(9,10)
+	G.AddEdge(9,11)
+	G.AddEdge(10,11)
+	G.AddEdge(10,12)
+	G.AddEdge(11,12)
+	G.AddEdge(13,14)
+	G.AddEdge(13,16)
+	G.AddEdge(14,15)
+	G.AddEdge(15,16)
+
+	return G
+}
