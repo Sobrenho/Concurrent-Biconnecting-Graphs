@@ -69,7 +69,7 @@ func (graph *GraphX) Tarjan(vertex int) bool {
 
 }
 
-func (graph *GraphX) tarjanVisit(u int, color []int, parent []int, desc []int, ret []int,edgeStack *StackX[edge], time *int) int {
+func (graph *GraphX) tarjanVisit(u int, color []int, parent []int, desc []int, ret []int, edgeStack *StackX[edge], time *int) int {
 
 	color[u] = gray
 	*time += 1
