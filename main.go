@@ -11,7 +11,6 @@ func main(){
 	command := os.Args[1]
 	passedArgs := os.Args[2:]
 
-
 	switch command {
 	
 	case "make-random-graph":
