@@ -14,8 +14,9 @@ func (graph *GraphX) Splatoon(threadsCount int) []int {
 
 	unionFind := unionfind.NewUnionFind(graph.VerticesCount())
 
-	returnedChannel := make(chan bool, threadsCount)
+	var waitGroup sync.WaitGroup
 
+	waitGroup.Add(threadsCount)
 	for i := 0; i < threadsCount; i++ {
 
 		go func() {
@@ -38,14 +39,11 @@ func (graph *GraphX) Splatoon(threadsCount int) []int {
 				}
 			}
 
-			returnedChannel <- true
-	
+			waitGroup.Done()
 		}()
 
 	}
 
-	for i := 0; i < threadsCount; i++ {
-		<- returnedChannel
-	}
+	waitGroup.Wait()
 	return unionFind.Representatives()
 }
