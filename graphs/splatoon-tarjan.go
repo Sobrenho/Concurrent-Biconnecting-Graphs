@@ -1,72 +1,49 @@
 package graphs
 
-func (graph *GraphX) SplatoonTarjan(threadsCount int) ([]int, []int) {
+import (
+	"sync"
+)
 
-	components := graph.Splatoon(threadsCount)
+func (graph *GraphX) SplatoonTarjan(threadsCount int) ([]int, [][]Edge) {
 
-	componentsChannel := make(chan int, len(components))
-	for _, component := range components {
-		componentsChannel <- component
-	}
+    components := graph.Splatoon(threadsCount)
 
-	componentsConsumed := make(chan int, 1)
-	componentsConsumed <- 0
+    nextComponent := 0
+    var nextComponentLock sync.Mutex
 
-	biconnectedComponents := make(chan []int, 1)
-	biconnectedComponents <- make([]int, 0, len(components))
+    blocks := make([][]Edge, 0)
+    var blocksLock sync.Mutex
 
-	canFinish := make(chan bool, 1)
+    var waitGroup sync.WaitGroup
 
-	threadsFinished := make(chan int, 1)
-	threadsFinished <- 0
+    waitGroup.Add(threadsCount)
+    for i := 0; i < threadsCount; i++ {
 
-	canReturn := make(chan bool)
+        go func() {
 
-	for i := 0; i < threadsCount; i++ {
+            for {
 
-		go func() {
+                nextComponentLock.Lock()
+                if nextComponent == len(components) {
+                    nextComponentLock.Unlock()
+                    break
+                }
+                component := components[nextComponent]
+                nextComponent++
+                nextComponentLock.Unlock()
 
-			mustContinue := true
+                blocksHere := graph.Tarjan(component)
 
-			for mustContinue {
+                blocksLock.Lock()
+                blocks = append(blocks, blocksHere...)
+                blocksLock.Unlock()
+            }
 
-				select {
+            waitGroup.Done()
+        }()
 
-				case u := <- componentsChannel:
+    }
 
-					if graph.Tarjan(u) {
-						bComponents := <- biconnectedComponents
-						biconnectedComponents <- append(bComponents, u)
-					}
-
-					cConsumed := <- componentsConsumed
-					cConsumed++
-					componentsConsumed <- cConsumed
-
-					if cConsumed == len(components) {
-						mustContinue = false
-					}
-				
-				case <- canFinish:
-					mustContinue = false
-				}
-				
-			}
-
-			tFinished := <- threadsFinished
-			tFinished++
-			threadsFinished <- tFinished
-
-			canFinish <- true
-
-			if tFinished == threadsCount {
-				canReturn <- true
-			}
-		}()
-
-	}
-
-	<- canReturn
-
-	return components, <- biconnectedComponents
+    waitGroup.Wait()
+    return components, blocks
 }
