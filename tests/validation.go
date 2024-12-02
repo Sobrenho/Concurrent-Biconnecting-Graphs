@@ -2,56 +2,62 @@ package tests
 
 import (
 	"fmt"
-	"reflect"
 	"sort"
 	"trabfinal/graphs"
 )
 
-func getVerticesOfComponentDFS(graph *graphs.GraphX, u int, visited []bool, visitedVertices *[]int) {
-
-	visited[u] = true
-	*visitedVertices = append(*visitedVertices, u)
-	for _, v := range graph.Adjacents(u) {
-		if !visited[v] {
-			getVerticesOfComponentDFS(graph, v, visited, visitedVertices)
-		}
+func compareEdges(a graphs.Edge, b graphs.Edge) int {
+	if a.U == b.U {
+		return a.V - b.V
 	}
-
+	return a.U - b.U
 }
 
-func getVerticesOfComponent(graph *graphs.GraphX, source int) []int {
-
-	visited := make([]bool, graph.VerticesCount())
-	visitedVertices := make([]int, 0)
-	getVerticesOfComponentDFS(graph, source, visited, &visitedVertices)
-	return visitedVertices
-
-}
-
-func compareSlices(a []int, b []int) int {
+func compareSlicesOfEdges(a []graphs.Edge, b []graphs.Edge) int {
 	for i := range a {
-		if a[i] != b[i] {
-			return a[i] - b[i]
+		compare := compareEdges(a[i], b[i])
+		if compare != 0 {
+			return compare
 		}
 	}
 	return 0
 }
 
-func sortSliceOfSlices(slice [][]int) {
-	
-	for i := range slice {
-		sort.Slice(slice[i], func(j int, k int) bool {
-			return slice[i][j] < slice[i][k];
-		})
+func compareSlicesOfSlicesOfEdges(a [][]graphs.Edge, b [][]graphs.Edge) int {
+	for i := range a {
+		compare := compareSlicesOfEdges(a[i], b[i])
+		if compare != 0 {
+			return compare
+		}
 	}
-
-	sort.Slice(slice, func (i int, j int) bool {
-		return compareSlices(slice[i], slice[j]) < 0
-	})
-
+	return 0
 }
 
-func ValidateSplatoonTarjan(iterations int) int {
+func sortEdge(edge *graphs.Edge) {
+	if edge.U > edge.V {
+		edge.U, edge.V = edge.V, edge.U
+	}
+}
+
+func sortSliceOfEdges(slice []graphs.Edge) {
+	for i := range slice {
+		sortEdge(&slice[i])
+	}
+	sort.Slice(slice, func(i int, j int) bool {
+		return compareEdges(slice[i], slice[j]) < 0
+	})
+}
+
+func sortSliceOfSlicesOfEdges(slice [][]graphs.Edge) {
+	for _, subslice := range slice {
+		sortSliceOfEdges(subslice)
+	}
+	sort.Slice(slice, func(i int, j int) bool {
+		return compareSlicesOfEdges(slice[i], slice[j]) < 0
+	})
+}
+
+func ValidateSplatoonTarjan(iterations int) {
 
 	wrongs := 0
 
@@ -59,23 +65,15 @@ func ValidateSplatoonTarjan(iterations int) int {
 
 		graph := graphs.NewRandomGraph(1000, 2000)
 
-		_, blockRepsDFSTarjan := graph.DFSTarjan()
-		blocksDFSTarjan := make([][]int, len(blockRepsDFSTarjan))
-		for i, blockRep := range blockRepsDFSTarjan {
-			blocksDFSTarjan[i] = getVerticesOfComponent(graph, blockRep)
-		}
-		sortSliceOfSlices(blocksDFSTarjan)
+		_, blocksDFS := graph.DFSTarjan()
+		sortSliceOfSlicesOfEdges(blocksDFS)
 
 		for _, t := range []int{1, 2, 4, 8} {
 
-			_, blockRepsSplatoonTarjan := graph.SplatoonTarjan(t)
-			blocksSplatoonTarjan := make([][]int, len(blockRepsSplatoonTarjan))
-			for i, blockRep := range blockRepsSplatoonTarjan {
-				blocksSplatoonTarjan[i] = getVerticesOfComponent(graph, blockRep)
-			}
-			sortSliceOfSlices(blocksSplatoonTarjan)
+			_, blocksSplatoon := graph.SplatoonTarjan(t)
+			sortSliceOfSlicesOfEdges(blocksSplatoon)
 
-			if reflect.DeepEqual(blocksDFSTarjan, blocksSplatoonTarjan) {
+			if compareSlicesOfSlicesOfEdges(blocksDFS, blocksSplatoon) == 0 {
 				fmt.Println("OK!")
 			} else {
 				fmt.Println("Wrong!")
@@ -85,5 +83,5 @@ func ValidateSplatoonTarjan(iterations int) int {
 		}
 	}
 
-	return wrongs
+	fmt.Println(wrongs)
 }
