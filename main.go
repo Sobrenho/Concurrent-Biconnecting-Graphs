@@ -26,7 +26,7 @@ func main(){
     case "validate-splatoon-tarjan":
         scripts.ValidateSplatoonTarjan(passedArgs)
 	
-	case "measure-execution-time":
+	case "measure-execution-time": // Como rodar .\executavel measure-execution-time <Número de iterações por grafo>
 		tests.MeasureRunningTime(passedArgs)
 	default:
 		fmt.Printf("Unknown command %s.\n", command)
