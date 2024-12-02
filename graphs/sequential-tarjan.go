@@ -1,28 +1,14 @@
 package graphs
 
-const (
-	white = iota
-	gray  = iota
-	black = iota
-)
-
 func (graph *Graph) tarjanDFS() []int {
 
-	color  := make([]int, graph.VerticesCount())
-	parent := make([]int, graph.VerticesCount())
-	desc   := make([]int, graph.VerticesCount())
+	visited := make([]bool, graph.VerticesCount())
 
-	for u := 0; u < graph.VerticesCount(); u++ {
-		color[u] = white
-		parent[u] = -1
-	}
-
-	time := 0
 	components := make([]int, 0)
 
 	for u := 0; u < graph.VerticesCount(); u++ {
-		if color[u] == white {
-			graph.tarjanDFSVisit(u, color, parent, desc, &time)
+		if !visited[u] {
+			graph.tarjanDFSVisit(u, visited)
 			components = append(components, u)
 		}
 	}
@@ -30,22 +16,18 @@ func (graph *Graph) tarjanDFS() []int {
 	return components
 }
 
-func (graph *Graph) tarjanDFSVisit(u int, color []int, parent []int, desc []int, time *int) {
+func (graph *Graph) tarjanDFSVisit(u int, visited []bool) {
 
-	*time += 1
-	desc[u] = *time
-	color[u] = gray
+	visited[u] = true
+
 	for _, v := range graph.Adjacents(u) {
-		if color[v] == white {
-			parent[v] = u
-			graph.tarjanDFSVisit(v, color, parent, desc, time)
+		if !visited[v] {
+			graph.tarjanDFSVisit(v, visited)
 		}
 	}
-	color[u] = black
-	*time += 1
 }
 
-func (graph *Graph) Tarjan(vertex int) [][]Edge {
+func (graph *Graph) Tarjan(vertex int) []Block {
 
 	parent := make([]int, graph.VerticesCount())
 	desc   := make([]int, graph.VerticesCount())
@@ -58,13 +40,13 @@ func (graph *Graph) Tarjan(vertex int) [][]Edge {
 
 	time := 0
 	edgeStack := NewStack[Edge]()
-	blocks := make([][]Edge, 0)
+	blocks := make([]Block, 0)
 
 	graph.tarjanVisit(vertex, parent, desc, ret, &time, edgeStack, &blocks)
 
 	if !edgeStack.IsEmpty() {
 
-		lastBlock := make([]Edge, 0)
+		lastBlock := make(Block, 0)
 
 		for !edgeStack.IsEmpty() {
 			lastBlock = append(lastBlock, edgeStack.Pop())
@@ -76,7 +58,7 @@ func (graph *Graph) Tarjan(vertex int) [][]Edge {
 	return blocks
 }
 
-func (graph *Graph) tarjanVisit(u int, parent []int, desc []int, ret []int, time *int, edgeStack *StackX[Edge], blocks *[][]Edge) {
+func (graph *Graph) tarjanVisit(u int, parent []int, desc []int, ret []int, time *int, edgeStack *StackX[Edge], blocks *[]Block) {
 
 	*time++
 
@@ -100,7 +82,7 @@ func (graph *Graph) tarjanVisit(u int, parent []int, desc []int, ret []int, time
 
 			if (desc[u] == 1 && childrenCount > 1) || (desc[u] > 1 && ret[v] >= desc[u]) {
 
-				thisBlock := make([]Edge, 0)
+				thisBlock := make(Block, 0)
 
 				for {
 					anEdge := edgeStack.Pop()
@@ -126,10 +108,10 @@ func (graph *Graph) tarjanVisit(u int, parent []int, desc []int, ret []int, time
 	}
 }
 
-func (graph *Graph) DFSTarjan() ([]int, [][]Edge) {
+func (graph *Graph) DFSTarjan() ([]int, []Block) {
 
 	components := graph.tarjanDFS()
-	blocks := make([][]Edge, 0, len(components))
+	blocks := make([]Block, 0, len(components))
 	for _, u := range components {
 		blocks = append(blocks, graph.Tarjan(u)...)
 	}

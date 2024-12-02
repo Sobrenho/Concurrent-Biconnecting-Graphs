@@ -11,7 +11,7 @@ func sortEdge(edge *graphs.Edge) {
 	}
 }
 
-func sortBlock(block []graphs.Edge) {
+func sortBlock(block graphs.Block) {
 	for i := range block {
 		sortEdge(&block[i])
 	}
@@ -20,7 +20,7 @@ func sortBlock(block []graphs.Edge) {
 	})
 }
 
-func sortSlicesOfBlocks(slice [][]graphs.Edge) {
+func sortSlicesOfBlocks(slice []graphs.Block) {
 	for _, subslice := range slice {
 		sortBlock(subslice)
 	}

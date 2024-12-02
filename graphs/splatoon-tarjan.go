@@ -4,14 +4,14 @@ import (
 	"sync"
 )
 
-func (graph *Graph) SplatoonTarjan(threadsCount int) ([]int, [][]Edge) {
+func (graph *Graph) SplatoonTarjan(threadsCount int) ([]int, []Block) {
 
     components := graph.Splatoon(threadsCount)
 
     nextComponent := 0
     var nextComponentLock sync.Mutex
 
-    blocks := make([][]Edge, 0)
+    blocks := make([]Block, 0)
     var blocksLock sync.Mutex
 
     var waitGroup sync.WaitGroup

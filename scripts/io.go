@@ -21,7 +21,7 @@ func writeEdgeToFile(edge graphs.Edge, file *os.File) error {
 	return nil
 }
 
-func writeBlockToFile(block []graphs.Edge, file *os.File) error {
+func writeBlockToFile(block graphs.Block, file *os.File) error {
 
 	err := binary.Write(file, binary.BigEndian, int64(len(block)))
 	if err != nil {
@@ -38,7 +38,7 @@ func writeBlockToFile(block []graphs.Edge, file *os.File) error {
 	return nil
 }
 
-func writeSliceOfBlocksToFile(slice [][]graphs.Edge, file *os.File) error {
+func writeSliceOfBlocksToFile(slice []graphs.Block, file *os.File) error {
 
 	err := binary.Write(file, binary.BigEndian, int64(len(slice)))
 	if err != nil {

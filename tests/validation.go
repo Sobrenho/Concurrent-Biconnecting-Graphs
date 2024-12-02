@@ -13,7 +13,7 @@ func compareEdges(a graphs.Edge, b graphs.Edge) int {
 	return a.U - b.U
 }
 
-func compareSlicesOfEdges(a []graphs.Edge, b []graphs.Edge) int {
+func compareSlicesOfEdges(a graphs.Block, b graphs.Block) int {
 	for i := range a {
 		compare := compareEdges(a[i], b[i])
 		if compare != 0 {
@@ -23,7 +23,7 @@ func compareSlicesOfEdges(a []graphs.Edge, b []graphs.Edge) int {
 	return 0
 }
 
-func compareSlicesOfSlicesOfEdges(a [][]graphs.Edge, b [][]graphs.Edge) int {
+func compareSlicesOfSlicesOfEdges(a []graphs.Block, b []graphs.Block) int {
 	for i := range a {
 		compare := compareSlicesOfEdges(a[i], b[i])
 		if compare != 0 {
@@ -39,7 +39,7 @@ func sortEdge(edge *graphs.Edge) {
 	}
 }
 
-func sortSliceOfEdges(slice []graphs.Edge) {
+func sortSliceOfEdges(slice graphs.Block) {
 	for i := range slice {
 		sortEdge(&slice[i])
 	}
@@ -48,7 +48,7 @@ func sortSliceOfEdges(slice []graphs.Edge) {
 	})
 }
 
-func sortSliceOfSlicesOfEdges(slice [][]graphs.Edge) {
+func sortSliceOfSlicesOfEdges(slice []graphs.Block) {
 	for _, subslice := range slice {
 		sortSliceOfEdges(subslice)
 	}
