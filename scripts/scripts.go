@@ -11,48 +11,73 @@ import (
 	"trabfinal/graphs"
 )
 
-func compareSlices(a []int, b []int) int {
+func compareEdges(a graphs.Edge, b graphs.Edge) int {
+	if a.U == b.U {
+		return a.V - b.V
+	}
+	return a.U - b.U
+}
+
+func compareSlicesOfEdges(a []graphs.Edge, b []graphs.Edge) int {
 	for i := range a {
-		if a[i] != b[i] {
-			return a[i] - b[i]
+		compare := compareEdges(a[i], b[i])
+		if compare != 0 {
+			return compare
 		}
 	}
 	return 0
 }
 
-func sortSlice(slice []int) {
-	sort.Slice(slice, func(i int, j int) bool {
-		return slice[i] < slice[j]
-	})
-}
-
-func sortSliceOfSlices(slice [][]int) {
-	for _, slice := range slice {
-		sortSlice(slice)
-	}
-	sort.Slice(slice, func(i int, j int) bool {
-		return compareSlices(slice[i], slice[j]) < 0
-	})
-}
-
-func verticesOfComponentDFS(graph *graphs.GraphX, u int, visited []bool, vertices *[]int) {
-	visited[u] = true
-	*vertices = append(*vertices, u)
-	for _, v := range graph.Adjacents(u) {
-		if !visited[v] {
-			verticesOfComponentDFS(graph, v, visited, vertices)
+func compareSlicesOfSlicesOfEdges(a [][]graphs.Edge, b [][]graphs.Edge) int {
+	for i := range a {
+		compare := compareSlicesOfEdges(a[i], b[i])
+		if compare != 0 {
+			return compare
 		}
 	}
+	return 0
 }
 
-func verticesOfComponent(graph *graphs.GraphX, vertex int) []int {
-	visited := make([]bool, graph.VerticesCount())
-	vertices := make([]int, 0)
-	verticesOfComponentDFS(graph, vertex, visited, &vertices)
-	return vertices
+func sortEdge(edge *graphs.Edge) {
+	if edge.U > edge.V {
+		edge.U, edge.V = edge.V, edge.U
+	}
 }
 
-func writeSliceToFile(slice []int, file *os.File) error {
+func sortSliceOfEdges(slice []graphs.Edge) {
+	for i := range slice {
+		sortEdge(&slice[i])
+	}
+	sort.Slice(slice, func(i int, j int) bool {
+		return compareEdges(slice[i], slice[j]) < 0
+	})
+}
+
+func sortSliceOfSlicesOfEdges(slice [][]graphs.Edge) {
+	for _, subslice := range slice {
+		sortSliceOfEdges(subslice)
+	}
+	sort.Slice(slice, func(i int, j int) bool {
+		return compareSlicesOfEdges(slice[i], slice[j]) < 0
+	})
+}
+
+func writeEdgeToFile(edge graphs.Edge, file *os.File) error {
+
+	err := binary.Write(file, binary.BigEndian, int64(edge.U))
+	if err != nil {
+		return err
+	}
+
+	err = binary.Write(file, binary.BigEndian, int64(edge.V))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func writeSliceOfEdgesToFile(slice []graphs.Edge, file *os.File) error {
 
 	err := binary.Write(file, binary.BigEndian, int64(len(slice)))
 	if err != nil {
@@ -60,7 +85,7 @@ func writeSliceToFile(slice []int, file *os.File) error {
 	}
 
 	for _, item := range slice {
-		err = binary.Write(file, binary.BigEndian, int64(item))
+		err = writeEdgeToFile(item, file)
 		if err != nil {
 			return err
 		}
@@ -69,7 +94,7 @@ func writeSliceToFile(slice []int, file *os.File) error {
 	return nil
 }
 
-func writeSliceOfSlicesToFile(slice [][]int, file *os.File) error {
+func writeSliceOfSlicesOfEdgesToFile(slice [][]graphs.Edge, file *os.File) error {
 
 	err := binary.Write(file, binary.BigEndian, int64(len(slice)))
 	if err != nil {
@@ -77,7 +102,7 @@ func writeSliceOfSlicesToFile(slice [][]int, file *os.File) error {
 	}
 
 	for _, subslice := range slice {
-		err = writeSliceToFile(subslice, file)
+		err = writeSliceOfEdgesToFile(subslice, file)
 		if err != nil {
 			return err
 		}
@@ -139,18 +164,13 @@ func RunDFSTarjan(args []string) {
 	}
 
 	beforeAlgorithm := time.Now().UnixMilli()
-	_, components := graph.DFSTarjan()
+	_, blocks := graph.DFSTarjan()
 	afterAlgorithm := time.Now().UnixMilli()
 
 	fmt.Println(afterAlgorithm - beforeAlgorithm)
 
-	componentsExpanded := make([][]int, len(components))
-	for i, component := range components {
-		componentsExpanded[i] = verticesOfComponent(graph, component)
-	}
-
-	sortSliceOfSlices(componentsExpanded)
-	writeSliceOfSlicesToFile(componentsExpanded, outputFile)
+	sortSliceOfSlicesOfEdges(blocks)
+	writeSliceOfSlicesOfEdgesToFile(blocks, outputFile)
 }
 
 func RunSplatoonTarjan(args []string) {
@@ -182,16 +202,70 @@ func RunSplatoonTarjan(args []string) {
 	}
 
 	beforeAlgorithm := time.Now().UnixMilli()
-	_, components := graph.SplatoonTarjan(threadsCount)
+	_, blocks := graph.SplatoonTarjan(threadsCount)
 	afterAlgorithm := time.Now().UnixMilli()
 
 	fmt.Println(afterAlgorithm - beforeAlgorithm)
 
-	componentsExpanded := make([][]int, len(components))
-	for i, component := range components {
-		componentsExpanded[i] = verticesOfComponent(graph, component)
+	sortSliceOfSlicesOfEdges(blocks)
+	writeSliceOfSlicesOfEdgesToFile(blocks, outputFile)
+}
+
+func ValidateSplatoonTarjan(args []string) {
+
+	type graphSizeSetting struct {
+		verticesCount int
+		edgesCount int
 	}
 
-	sortSliceOfSlices(componentsExpanded)
-	writeSliceOfSlicesToFile(componentsExpanded, outputFile)
+	iterationsPerGraphSize, err := strconv.Atoi(args[0])
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	graphSizesToTest := []graphSizeSetting {
+		{1000,  2000},
+		{1000,  3000},
+		{1000,  4000},
+		{2000,  4000},
+		{2000,  8000},
+		{2000, 10000},
+		{5000,  7000},
+		{5000, 10000},
+		{5000, 13000},
+	}
+
+	threadsCountsToTest := []int {1, 2, 4, 8}
+
+	totalTests := len(graphSizesToTest) * iterationsPerGraphSize * len(threadsCountsToTest)
+	rightAnswers := 0
+	testsDone := 0
+
+	for _, graphSize := range graphSizesToTest {
+
+		for i := 0; i < iterationsPerGraphSize; i++ {
+
+			graph := graphs.NewRandomGraph(graphSize.verticesCount, graphSize.edgesCount)
+
+			_, blocksDFSTarjan := graph.DFSTarjan()
+			sortSliceOfSlicesOfEdges(blocksDFSTarjan)
+
+			for _, threadsCount := range threadsCountsToTest {
+
+				_, blocksSplatoonTarjan := graph.SplatoonTarjan(threadsCount)
+				sortSliceOfSlicesOfEdges(blocksSplatoonTarjan)
+
+				if compareSlicesOfSlicesOfEdges(blocksDFSTarjan, blocksSplatoonTarjan) == 0 {
+					rightAnswers++
+				}
+
+				testsDone++
+
+				fmt.Printf("%d/%d tests done.\n", testsDone, totalTests)
+			}
+		}
+	}
+
+	fmt.Printf("%d/%d right.", rightAnswers, totalTests)
 }
