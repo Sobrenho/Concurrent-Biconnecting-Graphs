@@ -6,9 +6,9 @@ const (
 	black = iota
 )
 
-type edge struct {
-	u int
-	v int
+type Edge struct {
+	U int
+	V int
 }
 
 func (graph *GraphX) tarjanDFS() []int {
@@ -50,69 +50,93 @@ func (graph *GraphX) tarjanDFSVisit(u int, color []int, parent []int, desc []int
 	*time += 1
 }
 
-func (graph *GraphX) Tarjan(vertex int) bool {
+func (graph *GraphX) Tarjan(vertex int) [][]Edge {
 
-	color  := make([]int, graph.VerticesCount())
 	parent := make([]int, graph.VerticesCount())
 	desc   := make([]int, graph.VerticesCount())
 	ret    := make([]int, graph.VerticesCount())
 
 	for u := 0; u < graph.VerticesCount(); u++ {
-		color[u] = white
 		parent[u] = -1
+		desc[u] = -1
 	}
 
-	edgeStack := NewStack[edge]()
 	time := 0
+	edgeStack := NewStack[Edge]()
+	blocks := make([][]Edge, 0)
 
-	return graph.tarjanVisit(vertex, color, parent, desc, ret, edgeStack, &time) == 1
+	graph.tarjanVisit(vertex, parent, desc, ret, &time, edgeStack, &blocks)
 
+	if !edgeStack.IsEmpty() {
+
+		lastBlock := make([]Edge, 0)
+
+		for !edgeStack.IsEmpty() {
+			lastBlock = append(lastBlock, edgeStack.Pop())
+		}
+
+		blocks = append(blocks, lastBlock)
+	}
+
+	return blocks
 }
 
-func (graph *GraphX) tarjanVisit(u int, color []int, parent []int, desc []int, ret []int, edgeStack *StackX[edge], time *int) int {
+func (graph *GraphX) tarjanVisit(u int, parent []int, desc []int, ret []int, time *int, edgeStack *StackX[Edge], blocks *[][]Edge) {
 
-	color[u] = gray
-	*time += 1
+	*time++
+
 	desc[u] = *time
-	ret[u] = *time
-	blocksCount := 0
+	ret[u]  = *time
+
+	childrenCount := 0
+
 	for _, v := range graph.Adjacents(u) {
-		if color[v] == white {
+
+		if desc[v] == -1 {
+
 			parent[v] = u
-			edgeStack.Push(edge{u ,v})
-			blocksCount = graph.tarjanVisit(v, color, parent, desc, ret, edgeStack, time)
-				
-			if ret[v] >= desc[u] {
+
+			childrenCount++
+
+			edgeStack.Push(Edge{u ,v})
+			graph.tarjanVisit(v, parent, desc, ret, time, edgeStack, blocks)
+
+			ret[u] = min(ret[u], ret[v])
+
+			if (desc[u] == 1 && childrenCount > 1) || (desc[u] > 1 && ret[v] >= desc[u]) {
+
+				thisBlock := make([]Edge, 0)
+
 				for {
 					anEdge := edgeStack.Pop()
-					if anEdge.u == u && anEdge.v == v {
-						blocksCount++
+					thisBlock = append(thisBlock, anEdge)
+					if anEdge.U == u && anEdge.V == v {
 						break
 					}
 				}
-			} else {
-				ret[u] = min(ret[u], ret[v])
+
+				if len(thisBlock) > 0 {
+					*blocks = append(*blocks, thisBlock)
+				}
 			}
+
 		} else if v != parent[u] {
-			if desc[v] < desc[u] {
-				edgeStack.Push(edge{u, v})
-			}
+
 			ret[u] = min(ret[u], desc[v])
+
+			if desc[v] < desc[u] {
+				edgeStack.Push(Edge{u, v})
+			}
 		}
 	}
-	return blocksCount
 }
 
-func (graph *GraphX) DFSTarjan() ([]int, []int) {
+func (graph *GraphX) DFSTarjan() ([]int, [][]Edge) {
 
 	components := graph.tarjanDFS()
-	biconnectedComponents := make([]int, 0, len(components))
-	
+	blocks := make([][]Edge, 0, len(components))
 	for _, u := range components {
-		if graph.Tarjan(u) {
-			biconnectedComponents = append(biconnectedComponents, u)
-		}
+		blocks = append(blocks, graph.Tarjan(u)...)
 	}
-
-	return components, biconnectedComponents
+	return components, blocks
 }
