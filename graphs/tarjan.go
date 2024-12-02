@@ -14,7 +14,7 @@ func (graph *Graph) Tarjan(vertex int) []Block {
 	}
 
 	time := 0
-	edgeStack := structures.NewStack[Edge]()
+	edgeStack := structures.MakeStack[Edge]()
 	blocks := make([]Block, 0)
 
 	var visit func(int)

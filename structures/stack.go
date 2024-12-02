@@ -4,10 +4,8 @@ type Stack[T any] struct {
 	array []T
 }
 
-func NewStack[T any]() *Stack[T] {
-	stack := new(Stack[T])
-	stack.array = make([]T, 0)
-	return stack
+func MakeStack[T any]() Stack[T] {
+	return Stack[T]{make([]T, 0)}
 }
 
 func (stack *Stack[T]) Push(item T) {
