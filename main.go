@@ -26,7 +26,7 @@ func main(){
         scripts.ValidateSplatoonTarjan(passedArgs)
 	
 	default:
-		fmt.Printf("Unknown command %s.", command)
+		fmt.Printf("Unknown command %s.\n", command)
 
 	}
 }

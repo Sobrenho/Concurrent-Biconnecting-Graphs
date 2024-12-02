@@ -63,5 +63,5 @@ func ValidateSplatoonTarjan(args []string) {
 		}
 	}
 
-	fmt.Printf("%d/%d right.", rightAnswers, totalTests)
+	fmt.Printf("%d/%d right.\n", rightAnswers, totalTests)
 }
