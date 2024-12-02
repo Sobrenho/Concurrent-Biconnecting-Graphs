@@ -2,7 +2,7 @@ package graphs
 
 import (
 	"sync"
-	"trabfinal/unionfind"
+	"trabfinal/structures"
 )
 
 func (graph *Graph) Splatoon(threadsCount int) []int {
@@ -12,7 +12,7 @@ func (graph *Graph) Splatoon(threadsCount int) []int {
 
 	isVisited := make([]bool, graph.VerticesCount())
 
-	unionFind := unionfind.NewUnionFind(graph.VerticesCount())
+	unionFind := structures.NewUnionFind(graph.VerticesCount())
 
 	var waitGroup sync.WaitGroup
 

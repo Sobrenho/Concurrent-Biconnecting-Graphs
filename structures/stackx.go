@@ -1,4 +1,4 @@
-package graphs
+package structures
 
 type StackX[T any] struct {
 	array []T

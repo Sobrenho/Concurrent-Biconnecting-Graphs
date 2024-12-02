@@ -1,5 +1,7 @@
 package graphs
 
+import "trabfinal/structures"
+
 func (graph *Graph) Tarjan(vertex int) []Block {
 
 	parent := make([]int, graph.VerticesCount())
@@ -12,7 +14,7 @@ func (graph *Graph) Tarjan(vertex int) []Block {
 	}
 
 	time := 0
-	edgeStack := NewStack[Edge]()
+	edgeStack := structures.NewStack[Edge]()
 	blocks := make([]Block, 0)
 
 	var visit func(int)
