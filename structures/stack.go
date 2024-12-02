@@ -1,28 +1,28 @@
 package structures
 
-type StackX[T any] struct {
+type Stack[T any] struct {
 	array []T
 }
 
-func NewStack[T any]() *StackX[T] {
-	stack := new(StackX[T])
+func NewStack[T any]() *Stack[T] {
+	stack := new(Stack[T])
 	stack.array = make([]T, 0)
 	return stack
 }
 
-func (stack *StackX[T]) Push(item T) {
+func (stack *Stack[T]) Push(item T) {
 	stack.array = append(stack.array, item)
 }
 
-func (stack *StackX[T]) Size() int {
+func (stack *Stack[T]) Size() int {
 	return len(stack.array)
 }
 
-func (stack *StackX[T]) IsEmpty() bool {
+func (stack *Stack[T]) IsEmpty() bool {
 	return stack.Size() == 0
 }
 
-func (stack *StackX[T]) Pop() T {
+func (stack *Stack[T]) Pop() T {
 	element := stack.array[stack.Size()-1]
 	stack.array = stack.array[:stack.Size() - 1]
 	return element
