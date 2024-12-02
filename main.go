@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"splatoon-tarjan-demo/scripts"
+	"splatoon-tarjan-demo/tests"
 )
 
 func main(){
@@ -25,6 +26,8 @@ func main(){
     case "validate-splatoon-tarjan":
         scripts.ValidateSplatoonTarjan(passedArgs)
 	
+	case "measure-execution-time":
+		tests.MeasureRunningTime(passedArgs)
 	default:
 		fmt.Printf("Unknown command %s.\n", command)
 
