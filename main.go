@@ -14,7 +14,7 @@ func main(){
 	switch command {
 	
 	case "make-random-graph":
-		scripts.MakeRandomGraphFile(passedArgs)
+		scripts.MakeRandomGraph(passedArgs)
 	
 	case "run-dfs-tarjan":
 		scripts.RunDFSTarjan(passedArgs)
@@ -22,7 +22,7 @@ func main(){
 	case "run-splatoon-tarjan":
 		scripts.RunSplatoonTarjan(passedArgs)
     
-    case "validate":
+    case "validate-splatoon-tarjan":
         scripts.ValidateSplatoonTarjan(passedArgs)
 	
 	default:
