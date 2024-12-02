@@ -18,6 +18,10 @@ func (stack *StackX[T]) Size() int {
 	return len(stack.array)
 }
 
+func (stack *StackX[T]) IsEmpty() bool {
+	return stack.Size() == 0
+}
+
 func (stack *StackX[T]) Pop() T {
 	element := stack.array[stack.Size()-1]
 	stack.array = stack.array[:stack.Size() - 1]
