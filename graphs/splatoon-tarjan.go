@@ -4,7 +4,7 @@ import (
 	"sync"
 )
 
-func (graph *GraphX) SplatoonTarjan(threadsCount int) ([]int, [][]Edge) {
+func (graph *Graph) SplatoonTarjan(threadsCount int) ([]int, [][]Edge) {
 
     components := graph.Splatoon(threadsCount)
 

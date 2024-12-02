@@ -6,12 +6,7 @@ const (
 	black = iota
 )
 
-type Edge struct {
-	U int
-	V int
-}
-
-func (graph *GraphX) tarjanDFS() []int {
+func (graph *Graph) tarjanDFS() []int {
 
 	color  := make([]int, graph.VerticesCount())
 	parent := make([]int, graph.VerticesCount())
@@ -35,7 +30,7 @@ func (graph *GraphX) tarjanDFS() []int {
 	return components
 }
 
-func (graph *GraphX) tarjanDFSVisit(u int, color []int, parent []int, desc []int, time *int) {
+func (graph *Graph) tarjanDFSVisit(u int, color []int, parent []int, desc []int, time *int) {
 
 	*time += 1
 	desc[u] = *time
@@ -50,7 +45,7 @@ func (graph *GraphX) tarjanDFSVisit(u int, color []int, parent []int, desc []int
 	*time += 1
 }
 
-func (graph *GraphX) Tarjan(vertex int) [][]Edge {
+func (graph *Graph) Tarjan(vertex int) [][]Edge {
 
 	parent := make([]int, graph.VerticesCount())
 	desc   := make([]int, graph.VerticesCount())
@@ -81,7 +76,7 @@ func (graph *GraphX) Tarjan(vertex int) [][]Edge {
 	return blocks
 }
 
-func (graph *GraphX) tarjanVisit(u int, parent []int, desc []int, ret []int, time *int, edgeStack *StackX[Edge], blocks *[][]Edge) {
+func (graph *Graph) tarjanVisit(u int, parent []int, desc []int, ret []int, time *int, edgeStack *StackX[Edge], blocks *[][]Edge) {
 
 	*time++
 
@@ -131,7 +126,7 @@ func (graph *GraphX) tarjanVisit(u int, parent []int, desc []int, ret []int, tim
 	}
 }
 
-func (graph *GraphX) DFSTarjan() ([]int, [][]Edge) {
+func (graph *Graph) DFSTarjan() ([]int, [][]Edge) {
 
 	components := graph.tarjanDFS()
 	blocks := make([][]Edge, 0, len(components))

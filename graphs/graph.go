@@ -1,14 +1,14 @@
 package graphs
 
-type GraphX struct {
+type Graph struct {
 	verticesCount int
 	edgesCount    int
 	adjacents     [][]int
 }
 
-func NewGraphX(verticesCount int) *GraphX {
+func NewGraph(verticesCount int) *Graph {
 
-	graph := new(GraphX)
+	graph := new(Graph)
 
 	graph.verticesCount = verticesCount
 	graph.edgesCount = 0
@@ -21,7 +21,7 @@ func NewGraphX(verticesCount int) *GraphX {
 	return graph
 }
 
-func (graph *GraphX) AddEdge(vertexA int, vertexB int) {
+func (graph *Graph) AddEdge(vertexA int, vertexB int) {
 
 	graph.adjacents[vertexA] = append(graph.adjacents[vertexA], vertexB)
 	graph.adjacents[vertexB] = append(graph.adjacents[vertexB], vertexA)
@@ -29,23 +29,23 @@ func (graph *GraphX) AddEdge(vertexA int, vertexB int) {
 
 }
 
-func (graph *GraphX) Adjacents(vertex int) []int {
+func (graph *Graph) Adjacents(vertex int) []int {
 	return graph.adjacents[vertex]
 }
 
-func (graph *GraphX) VerticesCount() int {
+func (graph *Graph) VerticesCount() int {
 	return graph.verticesCount
 }
 
-func (graph *GraphX) EdgesCount() int {
+func (graph *Graph) EdgesCount() int {
 	return graph.edgesCount
 }
 
 
 
 // Gera seguinte grafo: https://i.imgur.com/8s24EVp.png
-func TestGraph() *GraphX{
-	G := NewGraphX(18)
+func TestGraph() *Graph{
+	G := NewGraph(18)
 
 	G.AddEdge(0,1)
 	G.AddEdge(0,2)

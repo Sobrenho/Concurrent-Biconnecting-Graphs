@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func (graph *GraphX) WriteTo(file *os.File) error {
+func (graph *Graph) WriteTo(file *os.File) error {
 
 	err := binary.Write(file, binary.BigEndian, int64(graph.VerticesCount()))
 	if err != nil {
@@ -33,7 +33,7 @@ func (graph *GraphX) WriteTo(file *os.File) error {
 	return nil
 }
 
-func ReadGraphFrom(file *os.File) (*GraphX, error) {
+func ReadGraphFrom(file *os.File) (*Graph, error) {
 	
 	var verticesCount int64
 
@@ -42,7 +42,7 @@ func ReadGraphFrom(file *os.File) (*GraphX, error) {
 		return nil, err
 	}
 
-	graph := NewGraphX(int(verticesCount))
+	graph := NewGraph(int(verticesCount))
 	
 	sumOfDegrees := 0
 

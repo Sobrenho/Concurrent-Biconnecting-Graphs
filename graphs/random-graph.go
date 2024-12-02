@@ -2,9 +2,9 @@ package graphs
 
 import "math/rand/v2"
 
-func NewRandomGraph(verticesCount int, edgesCount int) *GraphX {
+func NewRandomGraph(verticesCount int, edgesCount int) *Graph {
 
-	graph := NewGraphX(verticesCount)
+	graph := NewGraph(verticesCount)
 
 	edgeExists := make(map[int]map[int]bool, verticesCount)
 	for u := 0; u < verticesCount; u++ {

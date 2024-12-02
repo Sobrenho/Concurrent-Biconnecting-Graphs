@@ -5,7 +5,7 @@ import (
 	"trabfinal/unionfind"
 )
 
-func (graph *GraphX) Splatoon(threadsCount int) []int {
+func (graph *Graph) Splatoon(threadsCount int) []int {
 
 	nextVertex := 0
 	var nextVertexLock sync.Mutex
