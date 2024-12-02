@@ -16,7 +16,7 @@ func NewRandomGraph(verticesCount int, edgesCount int) *Graph {
 		u := rand.IntN(verticesCount)
 		v := rand.IntN(verticesCount)
 
-		if edgeExists[u][v] {
+		if u == v || edgeExists[u][v] {
 			continue
 		}
 
