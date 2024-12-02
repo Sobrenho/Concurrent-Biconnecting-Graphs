@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
-	"trabfinal/scripts"
+	"splatoon-tarjan-demo/scripts"
 )
 
 func main(){

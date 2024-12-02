@@ -1,8 +1,8 @@
 package graphs
 
 import (
+	"splatoon-tarjan-demo/structures"
 	"sync"
-	"trabfinal/structures"
 )
 
 func (graph *Graph) Splatoon(threadsCount int) []int {

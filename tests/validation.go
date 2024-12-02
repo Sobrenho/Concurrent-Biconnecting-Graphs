@@ -3,7 +3,7 @@ package tests
 import (
 	"fmt"
 	"sort"
-	"trabfinal/graphs"
+	"splatoon-tarjan-demo/graphs"
 )
 
 func compareEdges(a graphs.Edge, b graphs.Edge) int {

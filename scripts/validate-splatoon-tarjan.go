@@ -3,8 +3,8 @@ package scripts
 import (
 	"fmt"
 	"log"
+	"splatoon-tarjan-demo/graphs"
 	"strconv"
-	"trabfinal/graphs"
 )
 
 func ValidateSplatoonTarjan(args []string) {

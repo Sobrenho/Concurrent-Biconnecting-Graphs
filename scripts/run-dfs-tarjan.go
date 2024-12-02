@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"splatoon-tarjan-demo/graphs"
 	"time"
-	"trabfinal/graphs"
 )
 
 func RunDFSTarjan(args []string) {

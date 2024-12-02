@@ -4,9 +4,9 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"splatoon-tarjan-demo/graphs"
 	"strconv"
 	"time"
-	"trabfinal/graphs"
 )
 
 

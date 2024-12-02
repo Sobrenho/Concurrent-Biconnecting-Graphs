@@ -1,6 +1,6 @@
 package scripts
 
-import "trabfinal/graphs"
+import "splatoon-tarjan-demo/graphs"
 
 func compareEdges(a graphs.Edge, b graphs.Edge) int {
 	if a.U == b.U {

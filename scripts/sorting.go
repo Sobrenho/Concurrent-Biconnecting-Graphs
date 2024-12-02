@@ -2,7 +2,7 @@ package scripts
 
 import (
 	"sort"
-	"trabfinal/graphs"
+	"splatoon-tarjan-demo/graphs"
 )
 
 func sortEdge(edge *graphs.Edge) {

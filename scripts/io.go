@@ -3,7 +3,7 @@ package scripts
 import (
 	"encoding/binary"
 	"os"
-	"trabfinal/graphs"
+	"splatoon-tarjan-demo/graphs"
 )
 
 func writeEdgeToFile(edge graphs.Edge, file *os.File) error {

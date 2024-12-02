@@ -1,6 +1,6 @@
 package graphs
 
-import "trabfinal/structures"
+import "splatoon-tarjan-demo/structures"
 
 func (graph *Graph) Tarjan(vertex int) []Block {
 

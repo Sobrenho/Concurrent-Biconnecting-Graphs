@@ -3,8 +3,8 @@ package scripts
 import (
 	"log"
 	"os"
+	"splatoon-tarjan-demo/graphs"
 	"strconv"
-	"trabfinal/graphs"
 )
 
 func MakeRandomGraph(args []string) {
