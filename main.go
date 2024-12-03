@@ -29,6 +29,9 @@ func main() {
 	case "show-graph":
 		scripts.ShowGraph(passedArgs)
 
+	case "show-blocks":
+		scripts.ShowBlocks(passedArgs)
+
 	case "measure-execution-time": // Como rodar .\executavel measure-execution-time <Número de iterações por grafo>
 		tests.MeasureRunningTime(passedArgs)
 
