@@ -25,6 +25,9 @@ func main(){
     case "validate-splatoon-tarjan":
         scripts.ValidateSplatoonTarjan(passedArgs)
 	
+	case "show-graph":
+		scripts.ShowGraph(passedArgs)
+	
 	default:
 		fmt.Printf("Unknown command %s.\n", command)
 
