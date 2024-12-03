@@ -32,7 +32,7 @@ func ValidateSplatoonTarjan(args []string) {
 		{5000, 13000},
 	}
 
-	threadsCountsToTest := []int {1, 2, 4, 8}
+	threadsCountsToTest := []int {1, 2, 4, 8, 16}
 
 	totalTests := len(graphSizesToTest) * iterationsPerGraphSize * len(threadsCountsToTest)
 	rightAnswers := 0
