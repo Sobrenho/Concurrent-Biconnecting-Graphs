@@ -33,6 +33,8 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 
 	for <-update{
 
+		update <- false
+
 		for i := 0; i< threadsCount; i++{
 			//Hooking
 			go func(){
