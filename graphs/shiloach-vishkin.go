@@ -38,6 +38,8 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 		for i := 0; i< threadsCount; i++{
 			//Hooking
 			go func(){
+				defer wgThreads.Done()
+
 				for{
 					select{
 					case v:= <-vertChanHooking:
@@ -69,8 +71,7 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 
 					case <- endHooking:
 						endHooking <- struct{}{}
-						wgThreads.Done()
-
+						return
 					}
 				}
 			}()
@@ -83,7 +84,8 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 		for i:=0; i< threadsCount; i++{
 			//Compressing
 			go func() {
-				select{
+				defer wgThreads.Done()
+
 
 				case v := <- vertChanCompressing:
 
@@ -102,11 +104,11 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 							endCompressing <- struct{}{}
 						}
 						usedVerticesLock.Unlock()
-					
-				case <- endCompressing:
-					endCompressing <- struct{}{}
-					wgThreads.Done()
-					return
+					case <- endCompressing:
+						endCompressing <- struct{}{}
+						return
+					}
+
 				}
 
 			}()
