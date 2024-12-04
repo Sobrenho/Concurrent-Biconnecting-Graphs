@@ -13,8 +13,8 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 	vertChanHooking := make(chan int, graph.VerticesCount())
 	vertChanCompressing := make(chan int, graph.VerticesCount())
 
-	endHooking := make(chan struct{}, 1) //Faz o papel de mutex
-	endCompressing := make(chan struct{}, 1) //Faz o papel de mutex
+	endHooking := make(chan struct{}, graph.VerticesCount())
+	endCompressing := make(chan struct{}, graph.VerticesCount()) 
 
 	for i := 0; i < graph.VerticesCount(); i++ {
 		parent[i] = i
