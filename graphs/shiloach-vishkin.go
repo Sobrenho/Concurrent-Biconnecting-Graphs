@@ -52,9 +52,9 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 
 						cur_parent := parent[v]
 						for _, neighbor := range graph.Adjacents(v){
-							if parent[neighbor] < cur_parent{
-
-								parent[v] = parent[neighbor]
+							if parent[neighbor] > cur_parent && parent[neighbor] == parent[parent[neighbor]]{
+							
+								parent[parent[neighbor]] = cur_parent
 
 								<-update
 								update<-true
@@ -96,9 +96,11 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 						usedVerticesLock.Unlock()
 	
 						vertChanHooking <- v
-	
+					
 						for parent[parent[v]] != parent[v]{
-							parent[v] = parent[parent[v]]	
+							parent[v] = parent[parent[v]]
+							<-update
+							update<-true
 						}
 	
 						usedVerticesLock.Lock()
