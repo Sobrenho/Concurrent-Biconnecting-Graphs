@@ -13,110 +13,116 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 	vertChanHooking := make(chan int, graph.VerticesCount())
 	vertChanCompressing := make(chan int, graph.VerticesCount())
 
-	endHooking := make(chan bool, 1) //Faz o papel de mutex
-	endCompressing := make(chan bool, 1) //Faz o papel de mutex
+	endHooking := make(chan struct{}, 1) //Faz o papel de mutex
+	endCompressing := make(chan struct{}, 1) //Faz o papel de mutex
 
 	for i := 0; i < graph.VerticesCount(); i++ {
 		parent[i] = i
 		vertChanHooking <- i
 	}
 	
-	var updateLock sync.Mutex
+	update := make(chan bool, 1)
 
-	var waitGroupBarrier sync.WaitGroup
-	waitGroupBarrier.Add(0)
+	var usedVertices int
+	var usedVerticesLock sync.Mutex
 
-	var waitGroupThreads sync.WaitGroup
-	waitGroupThreads.Add(threadsCount)
+	var wgThreads sync.WaitGroup
+	wgThreads.Add(threadsCount)
 
-	update := true
+	for <-update{
 
-	for i := 0; i< threadsCount; i++{
-		go func() {
-			for{	
-				updateLock.Lock()
-				update = false
-				updateLock.Unlock()
+		for i := 0; i< threadsCount; i++{
+			//Hooking
+			go func(){
+				for{
+					select{
+					case v:= <-vertChanHooking:
 
-				//Hooking
-				select{
-				case v := <- vertChanHooking:
-					cur_parent := parent[v]
-					for _, neighbor := range graph.Adjacents(v){
-						if parent[neighbor] < cur_parent{
+						usedVerticesLock.Lock()
+						usedVertices++
+						usedVerticesLock.Unlock()
 
-							parent[v] = parent[neighbor]
+						vertChanCompressing <- v
 
-							updateLock.Lock()
-							update = true
-							updateLock.Unlock()
+						cur_parent := parent[v]
+						for _, neighbor := range graph.Adjacents(v){
+							if parent[neighbor] < cur_parent{
+
+								parent[v] = parent[neighbor]
+
+								<-update
+								update<-true
+
+							}
 
 						}
 
+						usedVerticesLock.Lock()
+						if usedVertices == graph.VerticesCount(){
+							endHooking <- struct{}{}
+						}
+						usedVerticesLock.Unlock()
+
+					case <- endHooking:
+						endHooking <- struct{}{}
+						wgThreads.Done()
+
 					}
-
-					if v == graph.VerticesCount(){
-						<- endHooking
-						endHooking <- true
-						break
-					}
-
-					vertChanCompressing <- v
-
-				case <- endHooking: //Talvez esteja sobrando um endHooking sem 
-					endHooking <- true
-					break	
 				}
+			}()
+		}
+			wgThreads.Wait()
+			
+			usedVertices = 0
 
-				//Barreira
 
-
-				//Compressing
+		for i:=0; i< threadsCount; i++{
+			//Compressing
+			go func() {
 				select{
 
 				case v := <- vertChanCompressing:
+
+					usedVerticesLock.Lock()
+					usedVertices++
+					usedVerticesLock.Unlock()
+
+					vertChanHooking <- v
+
 					for parent[parent[v]] != parent[v]{
-							
-						parent[v] = parent[parent[v]]
-						
+						parent[v] = parent[parent[v]]	
 					}
-				
+
+					usedVerticesLock.Lock()
+						if usedVertices == graph.VerticesCount(){
+							endCompressing <- struct{}{}
+						}
+						usedVerticesLock.Unlock()
+					
 				case <- endCompressing:
-					endCompressing <- true
-					break
-				}
-				
-				
-				
-				
-				//Verificar se teve mudança ou podemos parar
-				updateLock.Lock()
-				if update == false{
-					updateLock.Unlock()
-					waitGroupThreads.Done()
+					endCompressing <- struct{}{}
+					wgThreads.Done()
 					return
 				}
-				updateLock.Unlock()
 
-				//Barreira
-			}
-		}()
-	}
-	
-	waitGroupThreads.Wait()
-	
+			}()
 
-	//Find Representatives
-	representativesSet := map[int]bool{}
-	unique := []int{}
-	for _, vertex := range parent{
-		if !representativesSet[vertex]{
-			representativesSet[vertex] = true
-			unique = append(unique, vertex)
+			wgThreads.Wait()
+			usedVertices = 0
 		}
 	}
 
-	return unique
+	//Find Representatives
+	representativesSet := map[int]bool{}
+	reps := []int{}
+	for _, vertex := range parent{
+		if !representativesSet[vertex]{
+			representativesSet[vertex] = true
+			reps = append(reps, vertex)
+		}
+	}
+
+	return reps
 }
 
 
