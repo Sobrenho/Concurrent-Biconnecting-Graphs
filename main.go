@@ -22,6 +22,9 @@ func main() {
 
 	case "run-splatoon-tarjan":
 		scripts.RunSplatoonTarjan(passedArgs)
+	
+	case "run-shiloachVishkin-tarjan":
+		scripts.RunShiloachVishkinTarjan(passedArgs)
 
 	case "validate-splatoon-tarjan":
 		scripts.ValidateSplatoonTarjan(passedArgs)
