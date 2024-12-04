@@ -28,7 +28,10 @@ func main() {
 
 	case "validate-splatoon-tarjan":
 		scripts.ValidateSplatoonTarjan(passedArgs)
-
+	
+	case "validate-shiloachVishkin-tarjan":
+		scripts.ValidateShiloachVishkinTarjan(passedArgs)
+	
 	case "show-graph":
 		scripts.ShowGraph(passedArgs)
 
