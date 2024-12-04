@@ -23,6 +23,8 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 	
 	update := make(chan bool, 1)
 
+	update <- true
+
 	var usedVertices int
 	var usedVerticesLock sync.Mutex
 
@@ -72,7 +74,7 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 			}()
 		}
 			wgThreads.Wait()
-			
+			wgThreads.Add(threadsCount)
 			usedVertices = 0
 
 
@@ -106,10 +108,11 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 				}
 
 			}()
-
-			wgThreads.Wait()
-			usedVertices = 0
 		}
+
+		wgThreads.Wait()
+			wgThreads.Add(threadsCount)
+			usedVertices = 0
 	}
 
 	//Find Representatives
