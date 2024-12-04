@@ -86,37 +86,41 @@ func (graph *Graph) ShiloachVishkin(threadsCount int) []int{
 			go func() {
 				defer wgThreads.Done()
 
+				for {
+					select{
 
-				case v := <- vertChanCompressing:
-
-					usedVerticesLock.Lock()
-					usedVertices++
-					usedVerticesLock.Unlock()
-
-					vertChanHooking <- v
-
-					for parent[parent[v]] != parent[v]{
-						parent[v] = parent[parent[v]]	
-					}
-
-					usedVerticesLock.Lock()
+					case v := <- vertChanCompressing:
+	
+						usedVerticesLock.Lock()
+						usedVertices++
+						usedVerticesLock.Unlock()
+	
+						vertChanHooking <- v
+	
+						for parent[parent[v]] != parent[v]{
+							parent[v] = parent[parent[v]]	
+						}
+	
+						usedVerticesLock.Lock()
 						if usedVertices == graph.VerticesCount(){
 							endCompressing <- struct{}{}
 						}
 						usedVerticesLock.Unlock()
+						
 					case <- endCompressing:
 						endCompressing <- struct{}{}
 						return
 					}
 
 				}
-
+		
 			}()
 		}
 
 		wgThreads.Wait()
-			wgThreads.Add(threadsCount)
-			usedVertices = 0
+		wgThreads.Add(threadsCount)
+		usedVertices = 0
+
 	}
 
 	//Find Representatives
